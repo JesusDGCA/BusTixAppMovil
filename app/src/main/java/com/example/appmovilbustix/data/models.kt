@@ -21,3 +21,12 @@ data class Bus(
     val features: List<String>,
     val imageRes: Int
 )
+
+// En: data/models.kt
+data class PurchasedTicket(
+    val ticketId: String,
+    val eventName: String,
+    val eventDate: String,
+    val passengerName: String,
+    val qrCodeContent: String // El texto que se convertirá en QR
+)

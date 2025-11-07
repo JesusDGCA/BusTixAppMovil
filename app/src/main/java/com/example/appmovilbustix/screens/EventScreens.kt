@@ -1,5 +1,3 @@
-// En: screens/EventScreens.kt
-
 package com.example.appmovilbustix.screens
 
 import android.widget.Toast
@@ -17,7 +15,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,7 +27,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.appmovilbustix.data.Event
+import com.example.appmovilbustix.data.PurchasedTicket
 import com.example.appmovilbustix.data.sampleEvents
+// ¡IMPORTANTE! Importa la lista desde su nueva ubicación en 'data'
+import com.example.appmovilbustix.data.purchasedTicketsList
+import java.util.UUID
+
+// La definición de la lista `purchasedTicketsList` ya NO va aquí.
 
 @Composable
 fun EventListScreen(
@@ -45,7 +48,6 @@ fun EventListScreen(
         )
         return
     }
-    // **CAMBIO IMPORTANTE**: Usamos el modifier que se nos pasa.
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
@@ -59,24 +61,19 @@ fun EventListScreen(
 
 @Composable
 fun EventCard(event: Event, onClick: () -> Unit) {
+    // ... (El código de EventCard no necesita cambios)
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        shape = RoundedCornerShape(12.dp)
     ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Image(
                 painter = painterResource(id = event.imageRes),
                 contentDescription = event.name,
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(RoundedCornerShape(8.dp)),
+                modifier = Modifier.size(80.dp).clip(RoundedCornerShape(8.dp)),
                 contentScale = ContentScale.Crop
             )
             Spacer(modifier = Modifier.width(16.dp))
@@ -90,14 +87,10 @@ fun EventCard(event: Event, onClick: () -> Unit) {
     }
 }
 
-// =========================================================================================
-// El resto del archivo (EventDetailScreen y TicketPurchaseModal) no debería necesitar cambios,
-// pero aquí lo incluyo por completitud para que simplemente reemplaces todo el archivo.
-// =========================================================================================
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventDetailScreen(eventId: Int?, onNavigateBack: () -> Unit) {
+    // ... (El código de EventDetailScreen no necesita cambios)
     val event = remember(eventId) { sampleEvents.find { it.id == eventId } }
     var showPurchaseModal by remember { mutableStateOf(false) }
 
@@ -107,36 +100,26 @@ fun EventDetailScreen(eventId: Int?, onNavigateBack: () -> Unit) {
                 title = { Text(event?.name ?: "Detalle del Evento") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) { Icon(Icons.Default.ArrowBack, contentDescription = "Volver") }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
-                )
+                }
             )
         },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                text = { Text("Comprar Boletos") },
-                icon = { Icon(Icons.Default.ShoppingCart, null) },
-                onClick = { showPurchaseModal = true },
-                containerColor = MaterialTheme.colorScheme.secondary
-            )
+            if (event != null) {
+                ExtendedFloatingActionButton(
+                    text = { Text("Comprar Boletos") },
+                    icon = { Icon(Icons.Default.ShoppingCart, null) },
+                    onClick = { showPurchaseModal = true }
+                )
+            }
         }
     ) { padding ->
         if (event != null) {
-            Column(modifier = Modifier
-                .padding(padding)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
-            ) {
+            Column(modifier = Modifier.padding(padding).verticalScroll(rememberScrollState()).padding(16.dp)) {
+                // ... Contenido del detalle del evento
                 Image(
                     painter = painterResource(id = event.imageRes),
                     contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(250.dp)
-                        .clip(RoundedCornerShape(12.dp)),
+                    modifier = Modifier.fillMaxWidth().height(250.dp).clip(RoundedCornerShape(12.dp)),
                     contentScale = ContentScale.Crop
                 )
                 Spacer(Modifier.height(16.dp))
@@ -146,16 +129,6 @@ fun EventDetailScreen(eventId: Int?, onNavigateBack: () -> Unit) {
                 Text("Acerca del Evento", style = MaterialTheme.typography.titleLarge)
                 Spacer(Modifier.height(8.dp))
                 Text(event.description, style = MaterialTheme.typography.bodyLarge)
-                Spacer(Modifier.height(16.dp))
-                Text("Itinerario", style = MaterialTheme.typography.titleLarge)
-                Spacer(Modifier.height(8.dp))
-                event.itinerary.forEach { item ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.CheckCircleOutline, null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(20.dp))
-                        Spacer(Modifier.width(8.dp))
-                        Text(item, style = MaterialTheme.typography.bodyMedium)
-                    }
-                }
                 Spacer(Modifier.height(100.dp)) // Espacio para el FAB
             }
         } else {
@@ -168,19 +141,18 @@ fun EventDetailScreen(eventId: Int?, onNavigateBack: () -> Unit) {
     }
 }
 
+
 @Composable
 fun TicketPurchaseModal(event: Event, onDismiss: () -> Unit) {
+    // ... (El código de TicketPurchaseModal no necesita cambios lógicos)
     var ticketCount by remember { mutableStateOf(1) }
-    // Usar SnapshotStateList para que Compose reaccione a los cambios en la lista
     val passengerNames = remember { mutableStateListOf("") }
     val context = LocalContext.current
 
-    // Sincroniza la lista de nombres con la cantidad de boletos
     LaunchedEffect(ticketCount) {
         while (passengerNames.size < ticketCount) passengerNames.add("")
         while (passengerNames.size > ticketCount) passengerNames.removeLast()
     }
-
     val isFormValid = passengerNames.all { it.isNotBlank() } && ticketCount > 0
 
     AlertDialog(
@@ -188,6 +160,7 @@ fun TicketPurchaseModal(event: Event, onDismiss: () -> Unit) {
         title = { Text(text = "Reservar Asientos", fontWeight = FontWeight.Bold) },
         text = {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                // ... Contenido del modal
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -205,32 +178,38 @@ fun TicketPurchaseModal(event: Event, onDismiss: () -> Unit) {
                     }
                 }
                 Spacer(Modifier.height(16.dp))
-                // Campos de nombre dinámicos
                 passengerNames.forEachIndexed { index, _ ->
                     OutlinedTextField(
                         value = passengerNames[index],
                         onValueChange = { passengerNames[index] = it },
                         label = { Text("Nombre Pasajero ${index + 1}") },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 8.dp),
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                         singleLine = true
                     )
                 }
-                Spacer(Modifier.height(20.dp))
-                Text(
-                    text = "Total: $${ticketCount * event.price}",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
             }
         },
         confirmButton = {
             Button(
                 onClick = {
-                    Toast.makeText(context, "¡Reserva para ${passengerNames.first()} y acompañantes realizada!", Toast.LENGTH_LONG).show()
+                    // Lógica para generar y "guardar" los boletos para el QR
+                    passengerNames.forEach { name ->
+                        if (name.isNotBlank()) {
+                            val ticketId = UUID.randomUUID().toString().substring(0, 8).uppercase()
+                            val qrContent = "EVENT:${event.name}|TICKET_ID:$ticketId|PAX:$name"
+
+                            purchasedTicketsList.add(
+                                PurchasedTicket(
+                                    ticketId = ticketId,
+                                    eventName = event.name,
+                                    eventDate = event.date,
+                                    passengerName = name,
+                                    qrCodeContent = qrContent
+                                )
+                            )
+                        }
+                    }
+                    Toast.makeText(context, "¡Compra exitosa! Revisa la sección 'Mis Boletos'", Toast.LENGTH_LONG).show()
                     onDismiss()
                 },
                 enabled = isFormValid

@@ -10,13 +10,18 @@ import com.example.appmovilbustix.data.EventType
 import com.example.appmovilbustix.data.sampleEvents
 import com.example.appmovilbustix.screens.AboutScreen
 import com.example.appmovilbustix.screens.BusListScreen
+// 1. IMPORTA LA NUEVA PANTALLA DEL CHATBOT
+import com.example.appmovilbustix.screens.ChatbotScreen
 import com.example.appmovilbustix.screens.EventDetailScreen
 import com.example.appmovilbustix.screens.EventListScreen
 import com.example.appmovilbustix.screens.LoginScreen
 import com.example.appmovilbustix.screens.MainScreen
-import com.example.appmovilbustix.screens.PlaceholderScreen
+import com.example.appmovilbustix.screens.MyTicketsScreen
+import com.example.appmovilbustix.screens.NotificationsScreen
+import com.example.appmovilbustix.screens.ProfileScreen
 
-// 1. Objeto de rutas definido UNA SOLA VEZ y de forma limpia.
+
+// 2. AÑADE LA RUTA PARA EL CHATBOT
 object AppRoutes {
     const val LOGIN = "login"
     const val EVENT_DETAIL = "event_detail/{eventId}"
@@ -28,18 +33,19 @@ object AppRoutes {
     const val MY_TICKETS = "my_tickets"
     const val BUSES = "buses"
     const val ABOUT = "about"
+    const val NOTIFICATIONS = "notifications"
+    const val PROFILE = "profile"
+    const val CHATBOT = "chatbot" // <-- Ruta nueva
 }
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
 
-    // 2. NavHost único que controla toda la navegación de la app.
     NavHost(navController = navController, startDestination = AppRoutes.LOGIN) {
         composable(AppRoutes.LOGIN) {
             LoginScreen(
                 onLoginSuccess = {
-                    // Al hacer login, navegamos a la pantalla de eventos por defecto
                     navController.navigate(AppRoutes.EVENTS) {
                         popUpTo(AppRoutes.LOGIN) { inclusive = true }
                     }
@@ -47,58 +53,59 @@ fun AppNavigation() {
             )
         }
 
-        // 3. Función lambda para manejar el click en un evento.
         val onEventClick: (Int) -> Unit = { eventId ->
             navController.navigate("event_detail/$eventId")
         }
 
-        // 4. Definimos aquí todas las pantallas que puede mostrar el Drawer.
-        //    Cada una llama a MainScreen, que actúa como un "marco" o "plantilla".
-        composable(AppRoutes.EVENTS) {
-            MainScreen(navController = navController) { modifier ->
-                EventListScreen(
-                    events = sampleEvents.filter { it.type == EventType.CONCERT || it.type == EventType.SPORTS },
-                    onEventClick = onEventClick,
-                    modifier = modifier // Se pasa el modifier con el padding
-                )
-            }
-        }
-        composable(AppRoutes.BEACH_TRIPS) {
-            MainScreen(navController = navController) { modifier ->
-                EventListScreen(
-                    events = sampleEvents.filter { it.type == EventType.BEACH },
-                    onEventClick = onEventClick,
-                    modifier = modifier
-                )
-            }
-        }
-        composable(AppRoutes.TOURIST_TRIPS) {
-            MainScreen(navController = navController) { modifier ->
-                EventListScreen(
-                    events = sampleEvents.filter { it.type == EventType.TOURIST },
-                    onEventClick = onEventClick,
-                    modifier = modifier
-                )
-            }
-        }
-        composable(AppRoutes.BUSES) {
-            MainScreen(navController = navController) { modifier ->
-                BusListScreen(modifier = modifier)
-            }
-        }
-        composable(AppRoutes.ABOUT) {
-            MainScreen(navController = navController) { modifier ->
-                AboutScreen(modifier = modifier)
-            }
-        }
-        composable(AppRoutes.MY_TICKETS) {
-            MainScreen(navController = navController) { modifier ->
-                PlaceholderScreen("Aquí verás tus boletos comprados", modifier = modifier)
+        // 3. AÑADE EL CHATBOT AL MAPA DE TÍTULOS
+        val screensWithTitles = mapOf(
+            AppRoutes.EVENTS to "Eventos y Conciertos",
+            AppRoutes.BEACH_TRIPS to "Viajes a la Playa",
+            AppRoutes.TOURIST_TRIPS to "Lugares Turísticos",
+            AppRoutes.BUSES to "Nuestras Unidades",
+            AppRoutes.CHATBOT to "Cotizar Viaje (IA)", // <-- Título para la TopAppBar
+            AppRoutes.NOTIFICATIONS to "Notificaciones",
+            AppRoutes.PROFILE to "Mi Perfil",
+            AppRoutes.MY_TICKETS to "Mis Boletos",
+            AppRoutes.ABOUT to "Acerca de"
+        )
+
+        screensWithTitles.forEach { (route, title) ->
+            composable(route) {
+                MainScreen(
+                    navController = navController,
+                    title = title
+                ) { modifier ->
+                    when (route) {
+                        AppRoutes.EVENTS -> EventListScreen(
+                            events = sampleEvents.filter { it.type == EventType.CONCERT || it.type == EventType.SPORTS },
+                            onEventClick = onEventClick,
+                            modifier = modifier
+                        )
+                        AppRoutes.BEACH_TRIPS -> EventListScreen(
+                            events = sampleEvents.filter { it.type == EventType.BEACH },
+                            onEventClick = onEventClick,
+                            modifier = modifier
+                        )
+                        AppRoutes.TOURIST_TRIPS -> EventListScreen(
+                            events = sampleEvents.filter { it.type == EventType.TOURIST },
+                            onEventClick = onEventClick,
+                            modifier = modifier
+                        )
+                        AppRoutes.BUSES -> BusListScreen(modifier = modifier)
+                        AppRoutes.ABOUT -> AboutScreen(modifier = modifier)
+                        AppRoutes.NOTIFICATIONS -> NotificationsScreen(modifier = modifier)
+                        AppRoutes.PROFILE -> ProfileScreen(modifier = modifier)
+                        AppRoutes.MY_TICKETS -> MyTicketsScreen(modifier = modifier)
+
+                        // 4. AÑADE LA PANTALLA DEL CHATBOT AL 'when'
+                        AppRoutes.CHATBOT -> ChatbotScreen(modifier = modifier)
+                    }
+                }
             }
         }
 
-        // 5. La pantalla de detalle se define fuera del grupo de MainScreen,
-        //    porque no necesita el menú lateral.
+        // La pantalla de detalle se mantiene separada
         composable(
             route = AppRoutes.EVENT_DETAIL,
             arguments = listOf(navArgument("eventId") { })

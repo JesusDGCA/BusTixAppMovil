@@ -1,5 +1,6 @@
 package com.example.appmovilbustix.data
 
+import androidx.compose.runtime.mutableStateListOf
 import com.example.appmovilbustix.R
 
 // --- DATOS DE EJEMPLO AMPLIADOS ---
@@ -38,7 +39,7 @@ val sampleEvents = listOf(
         listOf("Salida: 9:00 AM", "Visita a 3 viñedos", "Comida incluida", "Regreso: 8:00 PM"),
         1800)
 )
-
+val purchasedTicketsList = mutableStateListOf<PurchasedTicket>()
 val sampleBuses = listOf(
     Bus(1, "Irizar i8", 48, listOf("Asientos reclinables", "Aire acondicionado", "Baño", "Wi-Fi"), R.drawable.irizar),
     Bus(2, "Volvo 9800", 50, listOf("Doble piso", "Pantallas individuales", "Baño XL", "Conectores USB"), R.drawable.volvo),

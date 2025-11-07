@@ -1,8 +1,7 @@
-// En: screens/MainScreen.kt
-
 package com.example.appmovilbustix.screens
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -19,7 +18,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun MainScreen(
     navController: NavHostController,
-    // Recibe el contenido a mostrar como un Composable
+    title: String,
     content: @Composable (Modifier) -> Unit
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -37,7 +36,7 @@ fun MainScreen(
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("BusTix") },
+                    title = { Text(title) },
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
                             Icon(Icons.Default.Menu, contentDescription = "Menú")
@@ -51,7 +50,6 @@ fun MainScreen(
                 )
             },
         ) { innerPadding ->
-            // Muestra el contenido que se le pasó, aplicando el padding del Scaffold
             content(Modifier.padding(innerPadding))
         }
     }
@@ -59,17 +57,12 @@ fun MainScreen(
 
 @Composable
 fun AppDrawerContent(navController: NavHostController, closeDrawer: () -> Unit) {
-    // Función para navegar y evitar duplicados en la pila de navegación
     val navigateTo: (String) -> Unit = { route ->
         navController.navigate(route) {
-            // Limpia la pila de navegación hasta la pantalla de inicio del grafo
-            // para que el botón "atrás" no te lleve por las pantallas del drawer.
             popUpTo(navController.graph.startDestinationId) {
                 saveState = true
             }
-            // Evita apilar la misma pantalla si ya está en el tope
             launchSingleTop = true
-            // Restaura el estado si volvemos a una pantalla ya visitada
             restoreState = true
         }
         closeDrawer()
@@ -82,6 +75,7 @@ fun AppDrawerContent(navController: NavHostController, closeDrawer: () -> Unit) 
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.padding(bottom = 20.dp)
             )
+            // --- Menú de Navegación ---
             NavigationDrawerItem(
                 icon = { Icon(Icons.Default.Event, null) },
                 label = { Text("Eventos") },
@@ -100,7 +94,25 @@ fun AppDrawerContent(navController: NavHostController, closeDrawer: () -> Unit) 
                 selected = navController.currentDestination?.route == AppRoutes.TOURIST_TRIPS,
                 onClick = { navigateTo(AppRoutes.TOURIST_TRIPS) }
             )
+
+            // --- AÑADIDO: ENTRADA PARA EL CHATBOT ---
+            // Lo he colocado en una sección principal por su importancia.
+            NavigationDrawerItem(
+                icon = { Icon(Icons.Default.Calculate, null) }, // Ícono de calculadora
+                label = { Text("Cotizar Viaje (IA)") },
+                selected = navController.currentDestination?.route == AppRoutes.CHATBOT,
+                onClick = { navigateTo(AppRoutes.CHATBOT) }
+            )
+
+            NavigationDrawerItem(
+                icon = { Icon(Icons.Default.Campaign, null) },
+                label = { Text("Notificaciones") },
+                selected = navController.currentDestination?.route == AppRoutes.NOTIFICATIONS,
+                onClick = { navigateTo(AppRoutes.NOTIFICATIONS) }
+            )
+
             Divider(modifier = Modifier.padding(vertical = 16.dp))
+
             NavigationDrawerItem(
                 icon = { Icon(Icons.Default.DirectionsBus, null) },
                 label = { Text("Nuestras Unidades") },
@@ -119,7 +131,16 @@ fun AppDrawerContent(navController: NavHostController, closeDrawer: () -> Unit) 
                 selected = navController.currentDestination?.route == AppRoutes.ABOUT,
                 onClick = { navigateTo(AppRoutes.ABOUT) }
             )
+
+            // Spacer para empujar el perfil al fondo
+            Spacer(Modifier.weight(1f))
+
+            NavigationDrawerItem(
+                icon = { Icon(Icons.Default.Person, null) },
+                label = { Text("Mi Perfil") },
+                selected = navController.currentDestination?.route == AppRoutes.PROFILE,
+                onClick = { navigateTo(AppRoutes.PROFILE) }
+            )
         }
     }
 }
-
