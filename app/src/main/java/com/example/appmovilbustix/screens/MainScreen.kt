@@ -1,16 +1,22 @@
 package com.example.appmovilbustix.screens
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.appmovilbustix.R
 import com.example.appmovilbustix.navigation.AppRoutes
 import kotlinx.coroutines.launch
 
@@ -43,9 +49,9 @@ fun MainScreen(
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 )
             },
@@ -59,88 +65,102 @@ fun MainScreen(
 fun AppDrawerContent(navController: NavHostController, closeDrawer: () -> Unit) {
     val navigateTo: (String) -> Unit = { route ->
         navController.navigate(route) {
-            popUpTo(navController.graph.startDestinationId) {
-                saveState = true
-            }
+            popUpTo(navController.graph.startDestinationId) { saveState = true }
             launchSingleTop = true
             restoreState = true
         }
         closeDrawer()
     }
 
+    val currentRoute = navController.currentDestination?.route
+
     ModalDrawerSheet {
-        Column(Modifier.padding(16.dp)) {
-            Text(
-                "BusTix",
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.padding(bottom = 20.dp)
-            )
-            // --- Menú de Navegación ---
-            NavigationDrawerItem(
-                icon = { Icon(Icons.Default.Event, null) },
-                label = { Text("Eventos") },
-                selected = navController.currentDestination?.route == AppRoutes.EVENTS,
-                onClick = { navigateTo(AppRoutes.EVENTS) }
-            )
-            NavigationDrawerItem(
-                icon = { Icon(Icons.Default.BeachAccess, null) },
-                label = { Text("Viajes a Playas") },
-                selected = navController.currentDestination?.route == AppRoutes.BEACH_TRIPS,
-                onClick = { navigateTo(AppRoutes.BEACH_TRIPS) }
-            )
-            NavigationDrawerItem(
-                icon = { Icon(Icons.Default.Map, null) },
-                label = { Text("Lugares Turísticos") },
-                selected = navController.currentDestination?.route == AppRoutes.TOURIST_TRIPS,
-                onClick = { navigateTo(AppRoutes.TOURIST_TRIPS) }
-            )
+        DrawerHeader() // Encabezado del menú
+        Spacer(modifier = Modifier.height(12.dp))
 
-            // --- AÑADIDO: ENTRADA PARA EL CHATBOT ---
-            // Lo he colocado en una sección principal por su importancia.
-            NavigationDrawerItem(
-                icon = { Icon(Icons.Default.Calculate, null) }, // Ícono de calculadora
-                label = { Text("Cotizar Viaje (IA)") },
-                selected = navController.currentDestination?.route == AppRoutes.CHATBOT,
-                onClick = { navigateTo(AppRoutes.CHATBOT) }
-            )
+        // --- Menú de Navegación ---
+        NavigationDrawerItem(
+            icon = { Icon(Icons.Outlined.Event, null) },
+            label = { Text("Eventos") },
+            selected = currentRoute == AppRoutes.EVENTS,
+            onClick = { navigateTo(AppRoutes.EVENTS) }
+        )
+        NavigationDrawerItem(
+            icon = { Icon(Icons.Outlined.BeachAccess, null) },
+            label = { Text("Viajes a Playas") },
+            selected = currentRoute == AppRoutes.BEACH_TRIPS,
+            onClick = { navigateTo(AppRoutes.BEACH_TRIPS) }
+        )
+        NavigationDrawerItem(
+            icon = { Icon(Icons.Outlined.Map, null) },
+            label = { Text("Lugares Turísticos") },
+            selected = currentRoute == AppRoutes.TOURIST_TRIPS,
+            onClick = { navigateTo(AppRoutes.TOURIST_TRIPS) }
+        )
+        NavigationDrawerItem(
+            icon = { Icon(Icons.Outlined.AutoAwesome, null) },
+            label = { Text("Cotizar Viaje (IA)") },
+            selected = currentRoute == AppRoutes.CHATBOT,
+            onClick = { navigateTo(AppRoutes.CHATBOT) }
+        )
+        NavigationDrawerItem(
+            icon = { Icon(Icons.Outlined.Notifications, null) },
+            label = { Text("Notificaciones") },
+            selected = currentRoute == AppRoutes.NOTIFICATIONS,
+            onClick = { navigateTo(AppRoutes.NOTIFICATIONS) }
+        )
 
-            NavigationDrawerItem(
-                icon = { Icon(Icons.Default.Campaign, null) },
-                label = { Text("Notificaciones") },
-                selected = navController.currentDestination?.route == AppRoutes.NOTIFICATIONS,
-                onClick = { navigateTo(AppRoutes.NOTIFICATIONS) }
-            )
+        Divider(modifier = Modifier.padding(vertical = 16.dp))
 
-            Divider(modifier = Modifier.padding(vertical = 16.dp))
+        NavigationDrawerItem(
+            icon = { Icon(Icons.Outlined.DirectionsBus, null) },
+            label = { Text("Nuestras Unidades") },
+            selected = currentRoute == AppRoutes.BUSES,
+            onClick = { navigateTo(AppRoutes.BUSES) }
+        )
+        NavigationDrawerItem(
+            icon = { Icon(Icons.Outlined.ConfirmationNumber, null) },
+            label = { Text("Mis Boletos") },
+            selected = currentRoute == AppRoutes.MY_TICKETS,
+            onClick = { navigateTo(AppRoutes.MY_TICKETS) }
+        )
+        NavigationDrawerItem(
+            icon = { Icon(Icons.Outlined.Info, null) },
+            label = { Text("Acerca de") },
+            selected = currentRoute == AppRoutes.ABOUT,
+            onClick = { navigateTo(AppRoutes.ABOUT) }
+        )
 
-            NavigationDrawerItem(
-                icon = { Icon(Icons.Default.DirectionsBus, null) },
-                label = { Text("Nuestras Unidades") },
-                selected = navController.currentDestination?.route == AppRoutes.BUSES,
-                onClick = { navigateTo(AppRoutes.BUSES) }
-            )
-            NavigationDrawerItem(
-                icon = { Icon(Icons.Default.ConfirmationNumber, null) },
-                label = { Text("Mis Boletos") },
-                selected = navController.currentDestination?.route == AppRoutes.MY_TICKETS,
-                onClick = { navigateTo(AppRoutes.MY_TICKETS) }
-            )
-            NavigationDrawerItem(
-                icon = { Icon(Icons.Default.Info, null) },
-                label = { Text("Acerca de") },
-                selected = navController.currentDestination?.route == AppRoutes.ABOUT,
-                onClick = { navigateTo(AppRoutes.ABOUT) }
-            )
+        Spacer(Modifier.weight(1f))
 
-            // Spacer para empujar el perfil al fondo
-            Spacer(Modifier.weight(1f))
+        NavigationDrawerItem(
+            icon = { Icon(Icons.Outlined.Person, null) },
+            label = { Text("Mi Perfil") },
+            selected = currentRoute == AppRoutes.PROFILE,
+            onClick = { navigateTo(AppRoutes.PROFILE) }
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+    }
+}
 
-            NavigationDrawerItem(
-                icon = { Icon(Icons.Default.Person, null) },
-                label = { Text("Mi Perfil") },
-                selected = navController.currentDestination?.route == AppRoutes.PROFILE,
-                onClick = { navigateTo(AppRoutes.PROFILE) }
-            )
-        }
+@Composable
+private fun DrawerHeader() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(vertical = 20.dp, horizontal = 24.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.bustix),
+            contentDescription = "Logo de BusTix",
+            modifier = Modifier.size(50.dp)
+        )
+        Text(
+            text = "BusTix",
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+        )
     }
 }
