@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -75,7 +74,7 @@ fun AppDrawerContent(navController: NavHostController, closeDrawer: () -> Unit) 
     val currentRoute = navController.currentDestination?.route
 
     ModalDrawerSheet {
-        DrawerHeader() // Encabezado del menú
+        DrawerHeader()
         Spacer(modifier = Modifier.height(12.dp))
 
         // --- Menú de Navegación ---
@@ -129,6 +128,13 @@ fun AppDrawerContent(navController: NavHostController, closeDrawer: () -> Unit) 
             label = { Text("Acerca de") },
             selected = currentRoute == AppRoutes.ABOUT,
             onClick = { navigateTo(AppRoutes.ABOUT) }
+        )
+        // --- AÑADIDO: SOPORTE ---
+        NavigationDrawerItem(
+            icon = { Icon(Icons.Outlined.HelpOutline, null) },
+            label = { Text("Soporte") },
+            selected = currentRoute == AppRoutes.SUPPORT,
+            onClick = { navigateTo(AppRoutes.SUPPORT) }
         )
 
         Spacer(Modifier.weight(1f))
