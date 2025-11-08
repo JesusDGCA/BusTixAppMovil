@@ -5,122 +5,72 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.outlined.Explore
+import androidx.compose.material.icons.outlined.LocalOffer
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.appmovilbustix.data.*
 
-// Los modelos y datos de ejemplo ahora están en sus propios archivos.
+enum class NotificationType { DISCOUNT, NEW_ROUTE, OFFER }
+
+data class Promotion(
+    val title: String,
+    val description: String,
+    val type: NotificationType,
+    val timestamp: String
+)
+
+val samplePromotions = listOf(
+    Promotion(
+        "¡2x1 en Viajes a la Playa!",
+        "Compra un boleto para Puerto Vallarta y llévate el segundo a mitad de precio. Válido hasta el domingo.",
+        NotificationType.OFFER,
+        "Hace 1h"
+    ),
+    Promotion(
+        "15% de Descuento en Conciertos",
+        "Usa el código ROCKON25 al comprar tus boletos para el Corona Capital y obtén un 15% de descuento.",
+        NotificationType.DISCOUNT,
+        "Hace 5h"
+    ),
+    Promotion(
+        "Nueva Ruta: San Miguel de Allende",
+        "¡Ya disponible! Viaja con nosotros a la ciudad más bonita de México. Salidas todos los viernes.",
+        NotificationType.NEW_ROUTE,
+        "Ayer"
+    ),
+    Promotion(
+        "Fin de semana en Tequila, Jalisco",
+        "Descubre el pueblo mágico de Tequila con nuestro tour especial. Incluye degustaciones y transporte.",
+        NotificationType.NEW_ROUTE,
+        "Hace 2 días"
+    )
+)
 
 @Composable
 fun NotificationsScreen(modifier: Modifier = Modifier) {
-    var selectedTab by remember { mutableStateOf(0) }
-    val tabs = listOf("Alertas", "Promociones")
-
-    Column(modifier = modifier.fillMaxSize()) {
-        TabRow(selectedTabIndex = selectedTab) {
-            tabs.forEachIndexed { index, title ->
-                Tab(
-                    selected = selectedTab == index,
-                    onClick = { selectedTab = index },
-                    text = { Text(title) }
-                )
-            }
-        }
-
-        when (selectedTab) {
-            0 -> AlertsList()
-            1 -> PromotionsList()
-        }
-    }
-}
-
-@Composable
-fun AlertsList() {
-    val userAlerts = getSampleUserAlerts()
-    if (userAlerts.isEmpty()) {
-        PlaceholderScreen(text = "No tienes alertas importantes.")
+    if (samplePromotions.isEmpty()) {
+        PlaceholderScreen(text = "No tienes notificaciones.", modifier = modifier)
         return
     }
     LazyColumn(
+        modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        items(userAlerts) { alert ->
-            AlertCard(notification = alert)
+        item {
+            Text(
+                "Promociones y Avisos",
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
         }
-    }
-}
-
-@Composable
-fun PromotionsList() {
-    val promotions = samplePromotions
-    if (promotions.isEmpty()) {
-        PlaceholderScreen(text = "No hay promociones disponibles.")
-        return
-    }
-    LazyColumn(
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        items(promotions) { promo ->
+        items(samplePromotions) { promo ->
             PromotionCard(promotion = promo)
-        }
-    }
-}
-
-
-@Composable
-fun AlertCard(notification: UserNotification) {
-    val icon: ImageVector
-    val cardColor: Color
-    val iconColor: Color
-
-    when (notification.type) {
-        AlertType.REMINDER -> {
-            icon = Icons.Outlined.Schedule
-            cardColor = MaterialTheme.colorScheme.surfaceVariant
-            iconColor = MaterialTheme.colorScheme.primary
-        }
-        AlertType.INFO -> {
-            icon = Icons.Outlined.Info
-            cardColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
-            iconColor = MaterialTheme.colorScheme.secondary
-        }
-        AlertType.WARNING -> {
-            icon = Icons.Outlined.WarningAmber
-            cardColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f)
-            iconColor = MaterialTheme.colorScheme.tertiary
-        }
-        AlertType.CRITICAL -> {
-            icon = Icons.Outlined.Error
-            cardColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f)
-            iconColor = MaterialTheme.colorScheme.error
-        }
-    }
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = cardColor)
-    ) {
-        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.Top) {
-            Icon(icon, null, modifier = Modifier.size(32.dp).padding(top = 4.dp), tint = iconColor)
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(notification.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(notification.message, style = MaterialTheme.typography.bodyMedium)
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(notification.eventName, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Light)
-            }
-            Text(notification.timestamp, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(start = 8.dp))
         }
     }
 }
@@ -139,15 +89,36 @@ fun PromotionCard(promotion: Promotion) {
         elevation = CardDefaults.cardElevation(2.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
-        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.Top) {
-            Icon(icon, null, Modifier.size(36.dp).padding(top = 4.dp), tint = MaterialTheme.colorScheme.primary)
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.Top
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = "Notificación",
+                modifier = Modifier.size(36.dp).padding(top = 4.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(promotion.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(
+                    text = promotion.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(promotion.description, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f))
+                Text(
+                    text = promotion.description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                )
             }
-            Text(promotion.timestamp, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f), modifier = Modifier.padding(start = 8.dp))
+            Text(
+                text = promotion.timestamp,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                modifier = Modifier.padding(start = 8.dp)
+            )
         }
     }
 }
